@@ -1,7 +1,10 @@
+from django.db.models import Sum
+from django.utils import timezone
+from datetime import timedelta
 from django.db import models
 from app.users.models import CustomUser
 from app.users.constant import DIRECTION, AUDIENCE
-# Create your models here.
+
 class Lesson(models.Model):
     direction = models.CharField(
         max_length=155,
@@ -15,15 +18,17 @@ class Lesson(models.Model):
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь'
+        verbose_name='Преподаватель'
     )
-    data = models.CharField(
-        max_length=50,
-        verbose_name='Начала урока'
+    data = models.DateTimeField(
+        verbose_name='Начало урока'
+    )
+    end_data = models.DateTimeField(
+        verbose_name='Конец урока'
     )
     audience = models.CharField(
         max_length=155,
-        verbose_name='Aудитория',
+        verbose_name='Аудитория',
         choices=AUDIENCE
     )
 
@@ -32,3 +37,59 @@ class Lesson(models.Model):
 
     class Meta:
         verbose_name_plural = "Уроки"
+
+
+class Triallesson(models.Model):
+    teacher = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name='Преподаватель'
+    )
+    direction = models.CharField(
+        max_length=155,
+        verbose_name='Направление',
+        choices=DIRECTION
+    )
+    invited = models.CharField(
+        max_length=155,
+        verbose_name='Приглашено'
+    )
+    its_arrived = models.IntegerField(
+        verbose_name='Пришло'
+    )
+    total = models.IntegerField(
+        verbose_name='Общий пришло за последние 7 дней',
+        blank=True, null=True
+    )
+    lessons_last_week = models.IntegerField(
+        verbose_name='Уроков за последние 7 дней',
+        blank=True, null=True
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания'
+    )
+
+    def save(self, *args, **kwargs):
+        last_week = timezone.now() - timedelta(days=7)
+        # Считаем общее количество пришедших за последние 7 дней для данного направления
+        total_for_direction = Triallesson.objects.filter(
+            direction=self.direction,
+            created_at__gte=last_week
+        ).aggregate(Sum('its_arrived'))['its_arrived__sum'] or 0
+        self.total = total_for_direction
+        
+        # Считаем количество уроков, проведённых преподавателем за последние 7 дней
+        lessons_count = Triallesson.objects.filter(
+            teacher=self.teacher,
+            created_at__gte=last_week
+        ).count()
+        self.lessons_last_week = lessons_count
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Приглашено {self.invited}, пришло из них {self.its_arrived}"
+
+    class Meta:
+        verbose_name_plural = 'Недельный отчёт пробных уроков'
