@@ -36,7 +36,7 @@ class LessonAPI(GenericViewSet,
 
 class ListLesson(GenericViewSet, mixins.ListModelMixin):
     serializer_class = LessonSerializer
-    # permission_classes = [AllowAny]  # Доступ для всех пользователей
+    permission_classes = [IsAuthenticated]  # Доступ для всех пользователей
     queryset = Lesson.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['direction', 'user', 'data', 'audience']  # Поля для фильтрации
