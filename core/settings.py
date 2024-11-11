@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
     # app
     'app.users',
+    'app.lesson',
     # rest
     'rest_framework',
     'rest_framework_simplejwt',

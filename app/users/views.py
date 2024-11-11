@@ -17,4 +17,3 @@ class UserListView(generics.ListCreateAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
-
