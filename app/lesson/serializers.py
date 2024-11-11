@@ -15,10 +15,8 @@ class LessonSerializer(serializers.ModelSerializer):
 
         # Проверяем, есть ли у пользователя уже урок на это же время
         if Lesson.objects.filter(user=user, data=data).exists():
-            raise serializers.ValidationError("У вас уже есть урок на это время.")
+            raise serializers.ValidationError("У вас уже есть урок на это преподователя.")
         # Проверяем, есть ли уже урок с той же аудиторией и временем
         if Lesson.objects.filter(audience=audience, data=data).exists():
             raise serializers.ValidationError("В это время в данной аудитории уже запланирован урок.")
-
-
         return attrs

@@ -3,6 +3,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
+from django_filters.rest_framework import DjangoFilterBackend
 
 from app.lesson.models import Lesson
 from app.lesson.serializers import LessonSerializer
@@ -12,8 +13,7 @@ class LessonAPI(GenericViewSet,
                 mixins.CreateModelMixin,
                 mixins.RetrieveModelMixin,
                 mixins.UpdateModelMixin,
-                mixins.DestroyModelMixin,
-                mixins.ListModelMixin):
+                mixins.DestroyModelMixin,):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsManagerOrReadOnly]
@@ -34,10 +34,9 @@ class LessonAPI(GenericViewSet,
         else:
             serializer.save(user=self.request.user)
 
-
-
-class ListLesson(GenericViewSet,
-                 mixins.ListModelMixin):
-    queryset = Lesson.objects.all()
+class ListLesson(GenericViewSet, mixins.ListModelMixin):
     serializer_class = LessonSerializer
-    # permission_classes = [IsAuthenticated]
+    # permission_classes = [AllowAny]  # Доступ для всех пользователей
+    queryset = Lesson.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['direction', 'user', 'data', 'audience']  # Поля для фильтрации

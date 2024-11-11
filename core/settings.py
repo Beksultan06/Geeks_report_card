@@ -19,7 +19,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     # rest
     'rest_framework',
     'rest_framework_simplejwt',
+    # django
+    'django_filters',
 ]
 
 REST_FRAMEWORK = {
