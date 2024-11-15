@@ -20,11 +20,9 @@ class Lesson(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Преподаватель'
     )
-    data = models.DateTimeField(
+    data = models.CharField(
+        max_length=155,
         verbose_name='Начало урока'
-    )
-    end_data = models.DateTimeField(
-        verbose_name='Конец урока'
     )
     audience = models.CharField(
         max_length=155,
@@ -72,14 +70,12 @@ class Triallesson(models.Model):
 
     def save(self, *args, **kwargs):
         last_week = timezone.now() - timedelta(days=7)
-        # Считаем общее количество пришедших за последние 7 дней для данного направления
         total_for_direction = Triallesson.objects.filter(
             direction=self.direction,
             created_at__gte=last_week
         ).aggregate(Sum('its_arrived'))['its_arrived__sum'] or 0
         self.total = total_for_direction
-        
-        # Считаем количество уроков, проведённых преподавателем за последние 7 дней
+
         lessons_count = Triallesson.objects.filter(
             teacher=self.teacher,
             created_at__gte=last_week

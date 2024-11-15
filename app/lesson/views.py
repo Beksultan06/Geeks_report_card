@@ -26,7 +26,6 @@ class LessonAPI(GenericViewSet,
 
     def perform_create(self, serializer):
         user_id = self.request.data.get('user')
-        
         # Если указан user_id и текущий пользователь является менеджером
         if user_id and self.request.user.is_staff:
             try:
